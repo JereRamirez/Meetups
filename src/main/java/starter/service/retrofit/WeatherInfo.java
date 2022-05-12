@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class WeatherInfo {
-    private List<starter.service.retrofit.List> list;
+    private List<TemperatureInfos> list;
 }

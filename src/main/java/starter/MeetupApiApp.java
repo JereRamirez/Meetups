@@ -8,10 +8,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"starter.controller", "starter.service", "starter.repository", "starter.config"})
-@EnableCaching
 @EnableSwagger2
 public class MeetupApiApp {
-
     public static void main(String[] args) {
         SpringApplication.run(MeetupApiApp.class, args);
     }

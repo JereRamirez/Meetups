@@ -7,7 +7,7 @@ To test endpoints through Postman you need to provide "Basic Auth" in the Author
 </p>
 
 <p>This application enables you to get information about your meetups.
-Currentyl available features:
+Currently available features:
 
 </p>
 

@@ -5,48 +5,51 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
-import starter.controller.MeetupController;
-import starter.service.retrofit.List;
+import starter.service.retrofit.TemperatureInfos;
 import starter.service.retrofit.WeatherApiManager;
 import starter.service.retrofit.WeatherInfo;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Data
 @RequiredArgsConstructor
 public class TemperatureService {
+    private WeatherApiManager weatherApiManager;
+    private final Logger logger = LoggerFactory.getLogger(TemperatureService.class);
 
     @Autowired
-    private WeatherApiManager manager;
-    private final Logger logger = LoggerFactory.getLogger(MeetupController.class);
-
     public TemperatureService(WeatherApiManager manager) {
-        this.manager = manager;
+        this.weatherApiManager = manager;
     }
 
     public double getTemperatureFor(LocalDate date, String city) throws IOException {
-        if (!isValidDate(date)) {
+        if (!isValidDate(date))
             throw new IllegalArgumentException("Can not get temperature for a date greater than 5 days from now.");
-        }
 
-        Response<WeatherInfo> temperatureInfo = manager.getTemperature(city.concat(", ar"));
+        Response<WeatherInfo> temperatureInfo = weatherApiManager.getTemperature(city.concat(", ar"));
 
         return getTemperatureFor(temperatureInfo, date);
     }
 
     private double getTemperatureFor(Response<WeatherInfo> temperatureInfo, LocalDate date) {
-        java.util.List<List> tempByHour = temperatureInfo.body().getList();
+        assert temperatureInfo.body() != null;
+        List<TemperatureInfos> tempByHour = temperatureInfo.body().getList();
 
-        java.util.List<List> filteredHours = tempByHour.stream()
+        Optional<TemperatureInfos> temperature = tempByHour.stream()
                 .filter(climateInfo -> isWantedDate(climateInfo.getDt_txt(), date))
-                .collect(Collectors.toList());
-        //Possible upgrade: could get an avg or closest to the meetup time instead of the first
-        Double forecast = filteredHours.get(0).getMain().getTemp();
+                .findFirst();
+        double forecast = 0.;
+
+        if(temperature.isPresent())
+            forecast = temperature.get().getMain().getTemp();
+
         logger.info("Temperature obtained for the Meetup date: {}", forecast);
         return forecast;
     }

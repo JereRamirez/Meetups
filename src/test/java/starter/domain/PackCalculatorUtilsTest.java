@@ -8,7 +8,7 @@ import starter.service.TemperatureService;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,30 +95,24 @@ public class PackCalculatorUtilsTest {
     }
 
     private void assertCombinations(Meetup meetup, int secondAttendeesSize, int thirdAttendeesSize) throws IOException {
-        meetup.setAttendees(getAmmountOfAttendees(1));
+        meetup.setAttendees(getAmountOfAttendees(1));
 
         assertThat(calculator.calculatePackBirrasNecessity(meetup))
                 .isEqualTo(1);
 
-        meetup.setAttendees(getAmmountOfAttendees(secondAttendeesSize));
+        meetup.setAttendees(getAmountOfAttendees(secondAttendeesSize));
 
         assertThat(calculator.calculatePackBirrasNecessity(meetup))
                 .isEqualTo(2);
 
-        meetup.setAttendees(getAmmountOfAttendees(thirdAttendeesSize));
+        meetup.setAttendees(getAmountOfAttendees(thirdAttendeesSize));
 
         assertThat(calculator.calculatePackBirrasNecessity(meetup))
                 .isEqualTo(3);
     }
 
-    private List<Attendee> getAmmountOfAttendees(int count) {
-        List<Attendee> attendees = new ArrayList<>();
-
-        for (int i = 0; i < count; i++) {
-            attendees.add(new Attendee());
-        }
-
-        return attendees;
+    private List<Attendee> getAmountOfAttendees(int count) {
+        return Collections.nCopies(count, new Attendee());
     }
 
 }

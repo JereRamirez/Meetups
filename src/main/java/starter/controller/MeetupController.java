@@ -6,22 +6,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
+import starter.api.MeetupRequest;
+import starter.converters.MeetupRequestToMeetupConverter;
 import starter.domain.Attendee;
 import starter.domain.Meetup;
-import starter.service.CachingService;
 import starter.service.MeetupService;
 
 import java.io.IOException;
 
 @RestController
 public class MeetupController {
-
-    @Autowired
-    private MeetupService meetupService;
-    @Autowired
-    private CachingService cachingService;
-
+    private final MeetupService meetupService;
     private final Logger logger = LoggerFactory.getLogger(MeetupController.class);
+
+    @Autowired
+    public MeetupController(MeetupService meetupService) {
+        this.meetupService = meetupService;
+    }
 
     @Cacheable("temperatures")
     @GetMapping("/meetups/{id}/temperature")
@@ -39,18 +40,11 @@ public class MeetupController {
         return meetupService.getPacksNeeded(id);
     }
 
-    @GetMapping("/meetups")
-    @ApiOperation(value = "Find all Meetups",
-            notes = "Find all Meetups in the database. Available for ADMINs")
-    public Iterable<Meetup> getAll() {
-        return meetupService.getAll();
-    }
-
     @PostMapping("/meetups")
     @ApiOperation(value = "Add a Meetup",
             notes = "Add a Meetup to the database. Available for ADMINs")
-    public void addMeetup(@RequestBody Meetup meetup) {
-        meetupService.addMeetup(meetup);
+    public void addMeetup(@RequestBody MeetupRequest meetupRequest) {
+        meetupService.addMeetup(MeetupRequestToMeetupConverter.convert(meetupRequest));
     }
 
     @PutMapping("/meetups/{id}")
@@ -66,12 +60,7 @@ public class MeetupController {
     public void checkInAttendee(@PathVariable String id, @RequestBody String attendeeDni) {
         meetupService.checkInAttendee(id, attendeeDni);
     }
-
-    @GetMapping("/meetups/clearCache")
-    @ApiOperation(value = "Clear Cache",
-            notes = "Clear temperature Cache. Available for ADMINs")
-    public void clearCache() {
-        cachingService.evictCache();
-    }
-
 }
+
+
+

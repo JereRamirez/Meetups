@@ -4,31 +4,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import starter.controller.MeetupController;
 import starter.domain.Attendee;
 import starter.domain.Meetup;
 import starter.repository.MeetupRepository;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class MeetupService {
+    private final MeetupRepository meetupRepository;
+    private final TemperatureService temperatureService;
+    private final PackCalculatorService packCalculatorService;
+    private final Logger logger = LoggerFactory.getLogger(MeetupService.class);
 
     @Autowired
-    private MeetupRepository meetupRepository;
-    @Autowired
-    private TemperatureService temperatureService;
-    @Autowired
-    private PackCalculatorService packCalculatorService;
-    private final Logger logger = LoggerFactory.getLogger(MeetupController.class);
-
-    public Iterable<Meetup> getAll() {
-        logger.info("Request received to get all Meetups.");
-        return meetupRepository.findAll();
+    public MeetupService(MeetupRepository meetupRepository, TemperatureService temperatureService, PackCalculatorService packCalculatorService) {
+        this.meetupRepository = meetupRepository;
+        this.temperatureService = temperatureService;
+        this.packCalculatorService = packCalculatorService;
     }
 
     public void addMeetup(Meetup meetup) {
@@ -43,39 +37,28 @@ public class MeetupService {
         return temperatureService.getTemperatureFor(meetup.get().getDate(), meetup.get().getCity());
     }
 
-    public int getPacksNeeded(String id) throws IOException {
-        Optional<Meetup> meetup = meetupRepository.findById(id);
+    public int getPacksNeeded(String meetupId) throws IOException {
+        Optional<Meetup> meetup = meetupRepository.findById(meetupId);
         if (!meetup.isPresent()) return 0;
-        logger.info("Request to get necessary packs for Meetup with id: {}.", id);
+        logger.info("Request to get necessary packs for Meetup with id: {}.", meetupId);
         return packCalculatorService.calculatePackBirrasNecessity(meetup.get());
     }
 
-    public void addAttendee(String id, Attendee attendee) {
-        Optional<Meetup> meetup = meetupRepository.findById(id);
+    public void addAttendee(String meetupId, Attendee attendee) {
+        Optional<Meetup> meetup = meetupRepository.findById(meetupId);
         meetup.ifPresent(meet -> {
-            if (meet.getDate().isAfter(LocalDate.now())) {
-                logger.info("Meetup {} updated", meet.getId());
-                meet.getAttendees().add(attendee);
-                meetupRepository.save(meet);
-            }
+            meet.addAttendee(attendee);
+            meetupRepository.save(meet);
+            logger.info("Meetup {} updated", meet.getId());
         });
     }
 
-    public void checkInAttendee(String id, String dni) {
-        Optional<Meetup> meetup = meetupRepository.findById(id);
+    public void checkInAttendee(String meetupId, String dni) {
+        Optional<Meetup> meetup = meetupRepository.findById(meetupId);
         meetup.ifPresent(meet -> {
-            if (meet.getDate().isBefore(LocalDate.now())) {
-                List<Attendee> filteredAttendees = meet.getAttendees()
-                        .stream()
-                        .filter(att -> att.getDni().equals(dni))
-                        .collect(Collectors.toList());
-
-                if (!filteredAttendees.isEmpty()) {
-                    filteredAttendees.get(0).setAttended(true);
-                    meetupRepository.save(meet);
-                    logger.info("Meetup {} updated", meet.getId());
-                }
-            }
+            meet.checkInAttendee(dni);
+            meetupRepository.save(meet);
+            logger.info("Attendee with dni: {} for Meetup: {} updated", dni, meet.getId());
         });
     }
 }

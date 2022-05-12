@@ -40,6 +40,4 @@ public class WeatherApiTest {
         assertThat(response.code())
                 .isEqualTo(400);
     }
-
-    //TODO add invalid fields maybe?
 }
