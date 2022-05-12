@@ -4,6 +4,7 @@ import starter.api.MeetupRequest;
 import starter.domain.Attendee;
 import starter.domain.Meetup;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ public interface MeetupRequestToMeetupConverter {
                 }).collect(Collectors.toList());
 
         Meetup meetup = new Meetup();
-        meetup.setDate(request.getDate());
+        meetup.setDate(LocalDate.parse(request.getDate()));
         meetup.setCity(request.getCity());
         meetup.setAttendees(attendees);
 

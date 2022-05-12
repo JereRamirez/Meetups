@@ -15,6 +15,7 @@ import starter.service.MeetupService;
 import java.io.IOException;
 
 @RestController
+@RequestMapping("meetups")
 public class MeetupController {
     private final MeetupService meetupService;
     private final Logger logger = LoggerFactory.getLogger(MeetupController.class);
@@ -24,8 +25,7 @@ public class MeetupController {
         this.meetupService = meetupService;
     }
 
-    @Cacheable("temperatures")
-    @GetMapping("/meetups/{id}/temperature")
+    @GetMapping("/{id}/temperature")
     @ApiOperation(value = "Get Meetup's temperature",
             notes = "Provide meetup's id to get its forecast temperature")
     public double getMeetupTemperature(@PathVariable String id) throws IOException {
@@ -33,28 +33,28 @@ public class MeetupController {
         return meetupService.getTemperatureFor(id);
     }
 
-    @GetMapping("/meetups/{id}/packBirras")
+    @GetMapping("/{id}/packBirras")
     @ApiOperation(value = "Calculate packs needed for a Meetup",
             notes = "Provide meetup's id to get packs needed. Available for ADMINs")
     public int getPacksNeeded(@PathVariable String id) throws IOException {
         return meetupService.getPacksNeeded(id);
     }
 
-    @PostMapping("/meetups")
+    @PostMapping
     @ApiOperation(value = "Add a Meetup",
             notes = "Add a Meetup to the database. Available for ADMINs")
     public void addMeetup(@RequestBody MeetupRequest meetupRequest) {
         meetupService.addMeetup(MeetupRequestToMeetupConverter.convert(meetupRequest));
     }
 
-    @PutMapping("/meetups/{id}")
+    @PutMapping("/{id}")
     @ApiOperation(value = "Add user to a Meetup",
             notes = "Provide a Meetup id and an Attendee DNI to add to that Meetup. Available for USERs")
     public void addAttendee(@PathVariable String id, @RequestBody Attendee attendee) {
         meetupService.addAttendee(id, attendee);
     }
 
-    @PatchMapping("/meetups/{id}")
+    @PatchMapping("/{id}")
     @ApiOperation(value = "Chek-in user to a Meetup",
             notes = "Provide a Meetup id and an Attendee DNI to mark to that Meetup. Available for USERs")
     public void checkInAttendee(@PathVariable String id, @RequestBody String attendeeDni) {
