@@ -17,9 +17,11 @@ public interface MeetupRequestToMeetupConverter {
                     return attendee;
                 }).collect(Collectors.toList());
 
-        return Meetup.builder()
-                .date(request.getDate())
-                .city(request.getCity())
-                .attendees(attendees).build();
+        Meetup meetup = new Meetup();
+        meetup.setDate(request.getDate());
+        meetup.setCity(request.getCity());
+        meetup.setAttendees(attendees);
+
+        return meetup;
     }
 }

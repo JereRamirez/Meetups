@@ -9,7 +9,6 @@ import java.util.List;
 
 @Entity
 @Data
-@Builder
 public class Meetup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +17,6 @@ public class Meetup {
     private String city;
     @ElementCollection
     private List<Attendee> attendees = new LinkedList<>();
-
-    public Meetup() {}
 
     public void addAttendee(Attendee newAttendee){
         if(date.isAfter(LocalDate.now())){
