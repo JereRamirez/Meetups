@@ -8,10 +8,12 @@ To test endpoints through Postman you need to provide "Basic Auth" in the Author
 
 <p>This application enables you to get information about your meetups.
 Currently available features:
+</p>
 
-  Add Meetup
-  Add Attendees to Meetup
-  Check-in Attendee for Meetup
-  Calculate Beer packs needed for a Meetup
+<p>
+  <br>Add Meetup
+  <br>Add Attendees to Meetup
+  <br>Check-in Attendee for Meetup
+  <br>Calculate beer packs needed for a Meetup
 </p>
 
